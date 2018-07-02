@@ -190,9 +190,22 @@ namespace RefactorThis.GraphDiff.Internal.Graph
 
         protected static object CreateEmptyEntityWithKey(IObjectContextAdapter context, object entity)
         {
-            var instance = Activator.CreateInstance(entity.GetType());
+            var instance = CreateInstance(entity.GetType());
+
             CopyPrimaryKeyFields(context, entity, instance);
             return instance;
+        }
+
+        private static object CreateInstance(Type type)
+        {
+            try
+            {
+                return Activator.CreateInstance(type, nonPublic: true);
+            }
+            catch (MissingMemberException e)
+            {
+                throw new IOException($"Cannot create object of type {type}", e);
+            }
         }
 
         private static void CopyPrimaryKeyFields(IObjectContextAdapter context, object from, object to)
