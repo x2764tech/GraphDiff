@@ -5,6 +5,7 @@ using System.Data.Entity.Core;
 using System.Data.Entity.Core.Metadata.Edm;
 using System.Data.Entity.Core.Objects;
 using System.Data.Entity.Infrastructure;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -198,7 +199,17 @@ namespace RefactorThis.GraphDiff.Internal.Graph
         {
             var keyProperties = context.GetPrimaryKeyFieldsFor(from.GetType()).ToList();
             foreach (var keyProperty in keyProperties)
-                keyProperty.SetValue(to, keyProperty.GetValue(from, null), null);
+            {
+                var value = keyProperty.GetValue(@from, null);
+                try
+                {
+                    keyProperty.SetValue(to, value, null);
+                }
+                catch (ArgumentException e)
+                {
+                    throw new NotSupportedException($"Cannot set {from.GetType()}.{keyProperty.Name} - {e.Message}", e);
+                }
+            }
         }
 
         protected static bool IsKeyIdentical(DbContext context, object newValue, object dbValue)

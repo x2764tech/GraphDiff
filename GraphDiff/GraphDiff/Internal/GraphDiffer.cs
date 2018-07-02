@@ -79,7 +79,21 @@ namespace RefactorThis.GraphDiff.Internal
             query = includeStrings.Aggregate(query, (current, include) => current.Include(include));
 
             // Run the find operation
-            return query.SingleOrDefault(CreateKeyPredicateExpression(context, entity));
+            var predicateExpression = CreateKeyPredicateExpression(context, entity);
+            
+            return SingleOrDefault(query, predicateExpression);
+        }
+
+        private static T SingleOrDefault(IQueryable<T> query, Expression<Func<T, bool>> predicateExpression)
+        {
+            try
+            {
+                return query.SingleOrDefault(predicateExpression);
+            }
+            catch (TargetInvocationException e)
+            {
+                throw new InvalidOperationException($"Cannot find entity of type {typeof(T)}", e);
+            }
         }
 
         private static Expression<Func<T, bool>> CreateKeyPredicateExpression(IObjectContextAdapter context, T entity)

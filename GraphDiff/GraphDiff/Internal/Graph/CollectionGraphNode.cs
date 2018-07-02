@@ -22,7 +22,7 @@ namespace RefactorThis.GraphDiff.Internal.Graph
         {
             var innerElementType = GetCollectionElementType();
             var updateValues = GetValue<IEnumerable>(entity) ?? new List<object>();
-            var dbCollection = GetValue<IEnumerable>(existing) ?? CreateMissingCollection(existing, innerElementType);
+            var dbCollection = GetValue<IList>(existing) ?? CreateMissingCollection(existing, innerElementType);
 
             var dbHash = dbCollection.Cast<object>().ToDictionary(item => CreateEntityKey(context, item));
 
@@ -42,7 +42,15 @@ namespace RefactorThis.GraphDiff.Internal.Graph
                 }
                 else
                 {
-                    updateList[i] = AddElement(context, existing, updateItem, dbCollection);
+                    try
+                    {
+                        updateList[i] = AddElement(context, existing, updateItem, dbCollection);
+                    }
+                    catch (NotSupportedException e)
+                    {
+                        throw new NotSupportedException($"Cannot add {typeof(T)} to {Accessor.DeclaringType}.{Accessor.Name}", e);
+                    }
+                    
                 }
             }
 
@@ -53,7 +61,7 @@ namespace RefactorThis.GraphDiff.Internal.Graph
             }
         }
 
-        private object AddElement<T>(DbContext context, T existing, object updateItem, object dbCollection)
+        private object AddElement<T>(DbContext context, T existing, object updateItem, IList dbCollection)
         {
             if (!_isOwned)
             {
@@ -75,7 +83,7 @@ namespace RefactorThis.GraphDiff.Internal.Graph
                 updateItem = instance;
             }
 
-            dbCollection.GetType().GetMethod("Add").Invoke(dbCollection, new[] {updateItem});
+            dbCollection.Add(updateItem);
 
             AttachCyclicNavigationProperty(context, existing, updateItem);
 
@@ -96,9 +104,9 @@ namespace RefactorThis.GraphDiff.Internal.Graph
             }
         }
 
-        private void RemoveElement(DbContext context, object dbItem, object dbCollection)
+        private void RemoveElement(DbContext context, object dbItem, IList dbCollection)
         {
-            dbCollection.GetType().GetMethod("Remove").Invoke(dbCollection, new[] { dbItem });
+            dbCollection.Remove(dbItem);
 
             AttachRequiredNavigationProperties(context, dbItem, dbItem);
 
@@ -108,10 +116,10 @@ namespace RefactorThis.GraphDiff.Internal.Graph
             }
         }
 
-        private IEnumerable CreateMissingCollection(object existing, Type elementType)
+        private IList CreateMissingCollection(object existing, Type elementType)
         {
             var collectionType = !Accessor.PropertyType.IsInterface ? Accessor.PropertyType : typeof(List<>).MakeGenericType(elementType);
-            var collection = (IEnumerable)Activator.CreateInstance(collectionType);
+            var collection = (IList)Activator.CreateInstance(collectionType);
             SetValue(existing, collection);
             return collection;
         }
