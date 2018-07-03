@@ -1,15 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
-        <id>RefactorThis.GraphDiff</id>
-        <version>2.0.1</version>
+        <id>x2764tech.GraphDiff</id>
+        <version>2.0.1-x2764tech</version>
         <title>GraphDiff - Entity Framework graph auto-update</title>
         <authors>brentmckendrick</authors>
         <owners>brentmckendrick</owners>
         <projectUrl>https://github.com/refactorthis/GraphDiff</projectUrl>
         <iconUrl>http://s8.postimg.org/r3f1stx69/Graph_Diff.png</iconUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>This is the official GraphDiff package.
+        <description>Unofficial fork of GraphDiff package that allows protected constructors
 
 GraphDiff - Allows for automatic update of a graph of detached entities using Entity Framework v6+.
 
@@ -32,11 +32,11 @@ v1.3.5
         <language>en-US</language>
         <tags>EntityFramework, EF, CodeFirst, DetachedUpdate</tags>
         <dependencies>
-            <dependency id="EntityFramework" version="6.0.1" />
+            <dependency id="EntityFramework" version="6.2.0" />
         </dependencies>
     </metadata>
     <files>
-        <file src="GraphDiff\bin\Debug\RefactorThis.GraphDiff.dll" target="lib\RefactorThis.GraphDiff.dll" />
-        <file src="GraphDiff\bin\Debug\RefactorThis.GraphDiff.pdb" target="lib\RefactorThis.GraphDiff.pdb" />
+        <file src="GraphDiff\bin\Debug\RefactorThis.GraphDiff.dll" target="lib\net40\RefactorThis.GraphDiff.dll" />
+        <file src="GraphDiff\bin\Debug\RefactorThis.GraphDiff.pdb" target="lib\net40\RefactorThis.GraphDiff.pdb" />
     </files>
 </package>
